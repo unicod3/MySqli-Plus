@@ -4,7 +4,8 @@
 *  | id | first_name | last_name | 
 *  ------------------------------- 
 *    1  | joe         | fox 
-*    2  | exm          | example 
+*    2  | exm         | example 
+*    3  | admin       | admin 
 **/ 
 require_once("class.mySqliPlus.php");  
     $mysqli  = new mySqliPlus();  
@@ -29,8 +30,8 @@ require_once("class.mySqliPlus.php");
         'last_name' => 'test',  
         );  
          
-    $row_id = $mysqli->insert($table, $data_arr); 
-    echo $row_id; // it returns inserted id  
+    $rowID = $mysqli->insert($table, $data_arr); 
+    echo $rowID; // it returns inserted id  
      
      
     ////update data 
