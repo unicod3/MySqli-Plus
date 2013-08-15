@@ -7,19 +7,19 @@
 *    2  | exm          | example 
 **/ 
 require_once("class.mySqliPlus.php");  
-    $mysql  = new mySqliPlus();  
+    $mysqli  = new mySqliPlus();  
   
           
   
      $table = 'users'; 
      
     ////row count  
-    echo  $mysql->rowCount($table,"where first_name ='joe'");  
+    echo  $mysqli->rowCount($table,"where first_name ='joe'");  
      
      
     ////get rows    
     echo '<pre>'; 
-    print_r($mysql->getRows($table,'*',"where first_name ='joe'"));  
+    print_r($mysqli->getRows($table,'*',"where first_name ='joe'"));  
     echo '</pre>'; 
      
     ////insert data 
@@ -29,7 +29,7 @@ require_once("class.mySqliPlus.php");
         'last_name' => 'test',  
         );  
          
-    $row_id = $mysql->insert($table, $data_arr); 
+    $row_id = $mysqli->insert($table, $data_arr); 
     echo $row_id; // it returns insert id  
      
      
@@ -39,11 +39,11 @@ require_once("class.mySqliPlus.php");
         'first_name' => 'joe', 
         'last_name' => 'test',  
         );  
-    $mysql->update($table, $data_arr,'where id=3'); 
+    $mysqli->update($table, $data_arr,'where id=3'); 
      
      
      
     //delete data 
-    echo $mysql->delete($table,'id=2'); 
+    echo $mysqli->delete($table,'id=2'); 
      
 ?>
