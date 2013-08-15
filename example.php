@@ -30,7 +30,7 @@ require_once("class.mySqliPlus.php");
         );  
          
     $row_id = $mysqli->insert($table, $data_arr); 
-    echo $row_id; // it returns insert id  
+    echo $row_id; // it returns inserted id  
      
      
     ////update data 
