@@ -13,10 +13,12 @@ class config {
 /** 
  * @name mySqliPlus 
  * 
+ * @category  Database Access
  * @author Sinan Ulker <sinanulker386@gmail.com> 
- * @copyright none 
+ * @copyright Copyright (c) 2013
  * @license GNU/GPL  
- */ 
+ */  
+ 
 class mySqliPlus { 
      
     // leave blank if used for multiple users and call setUser method 
