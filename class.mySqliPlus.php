@@ -1,0 +1,336 @@
+<?php 
+
+class config { 
+     
+    public static $DBSERVER = "127.0.0.1"; // Set the IP or hostname of the database server you wish to connect to 
+    public static $DBNAME = "databasename"; // Set the name of the database you wish to connect to 
+    public static $DBUSER = "root"; // set the database user name you wish to use to connect to the database server 
+    public static $DBPASSWORD = ""; // set the password for the username above 
+    public static $DBPORT = 3306; 
+    public static $TABLEPREFIX = ""; 
+} 
+
+/** 
+ * @name mySqliPlus 
+ * 
+ * @author Sinan Ulker <sinanulker386@gmail.com> 
+ * @copyright none 
+ * @license GNU/GPL  
+ */ 
+class mySqliPlus { 
+     
+    // leave blank if used for multiple users and call setUser method 
+    private $sqlUser = NULL; 
+     
+    // leave blank if used for multiple users and call setPassword method 
+    private $sqlPassword = NULL; 
+     
+    // set this to the database name you wish to use. If this class is used to access a number of Databases 
+    // leave blank and call the select method to select the desired database 
+    private $sqlDatabase = NULL; 
+     
+    // set this to the database server address. If you are using this class to connect to differant server 
+    // leave blank and call the setHost method 
+    private $sqlHost = NULL; 
+     
+    // Set this to the prefix of your tables if you set one while installing. 
+    // default = "" 
+    public $table_prefix = NULL; 
+    private $result; // Query result 
+    private $querycount; // Total queries executed 
+    private $linkid;  
+     
+    /////////////////////////////////////////END CONFIG OPTIONS///////////////////////////////////////////////////// 
+     
+    function __construct() {  
+        $this->loadDefaults ();  
+        $this->connect ( $this->sqlHost, $this->sqlUser, $this->sqlPassword, $this->sqlDatabase );  
+        $this->select ( $this->sqlDatabase );  
+    } 
+     
+    /* 
+     * method to load the object with the defaut settings 
+     */ 
+     
+    private function loadDefaults() { 
+        $this->sqlUser         = config::$DBUSER; 
+        $this->sqlPassword     = config::$DBPASSWORD; 
+        $this->sqlHost         = config::$DBSERVER; 
+        $this->sqlDatabase     = config::$DBNAME; 
+        $this->table_prefix = config::$TABLEPREFIX; 
+    } 
+     
+    public function getResult() { 
+         
+        return $this->result; 
+     
+    } 
+     
+    /** 
+     * method to return the prefix for the sql tables 
+     * 
+     * @return = string $this->table_prefix 
+     */ 
+     
+    public function get_tablePrefix() {  
+        return $this->table_prefix; 
+     
+    } 
+     
+    /** 
+     * function to return a string from within another string 
+     * found between $beginning and $ending 
+     * 
+     * @param string $source 
+     * @param string $beginning 
+     * @param string $ending 
+     * @param string $init_pos 
+     */ 
+     
+    function get_middle($source, $beginning, $ending, $init_pos) {  
+        $beginning_pos = strpos ( $source, $beginning, $init_pos );  
+        $middle_pos = $beginning_pos + strlen ( $beginning );  
+        $ending_pos = strpos ( $source, $ending, $beginning_pos + 1 );  
+        $middle = substr ( $source, $middle_pos, $ending_pos - $middle_pos );  
+        return $middle; 
+     
+    } 
+     
+    /** 
+     * method to connect to the MySQL database server. 
+     * 
+     * @param    string    $sqlHost 
+     * @param    string    $sqlUser 
+     * @param    string    $sqlPassword 
+     **/ 
+     
+    function connect($sqlHost, $sqlUser, $sqlPassword, $sqlDatabase) { 
+        try { 
+            $this->linkid = mysqli_connect ( $sqlHost, $sqlUser, $sqlPassword, $sqlDatabase, 3306 ); 
+            if (! $this->linkid) { 
+                die ( 'Connect Error (' . mysqli_connect_errno () . ') ' . mysqli_connect_error () ); 
+            } 
+            mysqli_query($this->linkid, "SET NAMES 'utf8'");  
+        } catch ( Exception $e ) { 
+            die ( $e->getMessage () ); 
+        } 
+    } 
+     
+    /** 
+     * method to select the database to use 
+     * @param string $sqlDatabase 
+     */ 
+     
+    function select($sqlDatabase) { 
+        try { 
+            if (! @mysqli_select_db ($this->linkid, $sqlDatabase  )) { 
+                throw new Exception ( "The Selected Database Can Not Be Found On the Database Server. $sqlDatabase (E2)" ); 
+            } 
+        } catch ( Exception $e ) { 
+            die ( $e->getMessage () ); 
+        } 
+    } 
+     
+    /** 
+     * method to query sql database 
+     * take mysql query string 
+     * returns false if no results or NULL result is returned by query 
+     * if query action is not expected to return results eg delete 
+     * returns false on sucess else returns result set 
+     * 
+     * NOTE: If you requier the the actual result set call one of the fetch methods 
+     * 
+     * @param string $query 
+     * @return boolian true or false 
+     */ 
+     
+    function query($query) { 
+        // ensure clean results 
+        unset ( $this->result ); 
+        // make query 
+        $this->result = mysqli_query ( $this->linkid, $query ); 
+        if (! $this->result) { 
+            echo "<br>Query failed: $query"; 
+            return FALSE; 
+        } else { 
+            return true; 
+        } 
+    } 
+     
+    /** 
+     * method to return the number of rows affected by the 
+     * last query exicuted 
+     * @return int 
+     */ 
+     
+    function affectedRows() {  
+        $count = mysqli_affected_rows ( $this->linkid ); 
+        return $count; 
+     
+    } 
+     
+    /** 
+     * method to return the number of rows in the result set 
+     * returned by the last query 
+     */ 
+     
+    function numRows() {  
+        $count = @mysqli_num_rows ( $this->result );  
+        return $count;  
+    } 
+     
+    /** 
+     * method to return the result row as an object 
+     * @return    object 
+     */ 
+     
+    function fetchObject() {  
+        while($row = @mysqli_fetch_object ( $this->result ))  
+        $rw[] = $row;  
+        return $rw;  
+    }  
+     
+    /** 
+     * method to return the result row as an indexed array 
+     * @return array 
+     */ 
+     
+    function fetchRows() {  
+        while($row = @mysqli_fetch_row ( $this->result )) 
+        $rw[] = $row;  
+        return $rw;  
+    } 
+     
+    /** 
+     * method to return the result row as an associative array. 
+     * @return array 
+     **/ 
+     
+    function fetchArray($assoc = MYSQL_ASSOC) {  
+        while($row = @mysqli_fetch_array ( $this->result,$assoc)) 
+        $rw[] = $row;  
+        return $rw;  
+    } 
+     
+    /** 
+     * method to return total number queries executed during 
+     * the lifetime of this object. 
+     * 
+     * @return int 
+     */ 
+     
+    function numQueries() {  
+        return $this->querycount;  
+    } 
+     
+    function setResult($resultSet) {  
+        $this->result = $resultSet;  
+    } 
+     
+    /** 
+     * method to return the number of fields in a result set 
+     * @return int 
+     **/ 
+     
+    function numberFields() {  
+        return @mysqli_num_fields ( $this->result ); 
+    } 
+     
+    /** 
+     * method to return a field name given an integer offset 
+     * @return    string 
+     **/ 
+     
+    function fieldName($offset) {  
+        return @mysqli_field_name ( $this->result, $offset );  
+    } 
+     
+     
+    /** 
+     * method to clean data 
+     * @return    string 
+     **/ 
+    function cleanData($data){ 
+        if(empty($data))return false;  
+        return    mysqli_real_escape_string($this->linkid, $data); 
+    }  
+    /* 
+    * method to add something to a table 
+    * @param string $tableName  
+    * @param array $data_arr     = array('col'=>'val'); 
+    * if it success it returns row id otherwise null  
+    */      
+    function insert($table , &$data_arr){  
+           $sql  = "INSERT INTO ".$this->table_prefix.$table;   
+           $sql .= " (`".implode("`, `", array_keys($data_arr))."`)";  // implode keys of $array.  
+           $sql .= " VALUES ('".implode("', '", $data_arr)."') ";  // implode values of $array. 
+             
+            $return_var     =  $this->query($sql);      
+            return ($this->result == true) ?  mysqli_insert_id($this->linkid) : false; 
+        } 
+     
+    /* 
+    * method to update colons in a table  
+    * @param string $tableName  
+    * @param array $data_arr     = array('col'=>'val'); 
+    * @param string $where_str  
+    * if it success it returns true otherwise false 
+    */      
+    function update($table, &$data_arr , $where_str){ 
+            $sql    = "UPDATE ".$this->table_prefix.$table." SET "; 
+             
+            $last_item = end($data_arr); 
+            $last_item = each($data_arr); 
+            foreach($data_arr as $k => $v){ 
+                $sql .= $k." = '".$v."'";     
+                if(!($v == $last_item['value'] && $k == $last_item['key'])){ 
+                    $sql .=", "; 
+                } 
+            }  
+            $sql    .= " ".$where_str;  
+            $this->query($sql);  
+            return $this->result; 
+        }  
+     
+    /* 
+    * method to delete records 
+    * @param string $tableName   
+    * @param string $where_str  
+    * if it success it returns true otherwise false 
+    */      
+     
+    function delete($table, $where_str){ 
+            if(empty($where_str))return false; 
+            $sql        = "DELETE FROM ".$this->table_prefix.$table." WHERE ".$where_str;      
+            $this->query($sql);  
+            return $this->result; 
+        } 
+         
+         
+         
+    /* 
+    * method to get row count 
+    * @param string $tableName     
+    * @param string $where_str  
+    * if it success it returns true otherwise false 
+    */          
+    function rowCount($table,$where_str = ''){  
+            $sql    =  $this->query("SELECT * FROM ".$this->table_prefix.$table." ".$where_str);  
+            return $this->numRows(); 
+        } 
+
+    /* 
+    * method to get rows from database 
+    * @param string $tableName   
+    * @param string/array $col_arr = array('col1','col2'); or *   
+    * @param string $where_str  
+    * if it success it returns true otherwise false 
+    */     
+    function getRows($table,$col_arr = '*', $where_str = ''){ 
+            $cols     = !is_array($col_arr) ? $col_arr : implode(',',$col_arr);  
+            $sql    =  $this->query("SELECT ".$cols." FROM ".$this->table_prefix.$table." ".$where_str);  
+            return  ($this->numRows() > 0) ? $this->fetchArray() : false; 
+        } 
+         
+} 
+?> 
