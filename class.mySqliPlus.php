@@ -144,18 +144,16 @@ class mySqliPlus {
      * last query exicuted 
      * @return int 
      */
-    function affectedRows() {  
-        $count = mysqli_affected_rows ( $this->linkid ); 
-        return $count;
+    function affectedRows() {
+        return mysqli_affected_rows ( $this->linkid );
     } 
      
     /** 
      * method to return the number of rows in the result set 
      * returned by the last query 
      */
-    function numRows() {  
-        $count = @mysqli_num_rows ( $this->result );  
-        return $count;  
+    function numRows() {
+        return mysqli_num_rows ($this->result);
     } 
      
     /** 
@@ -164,8 +162,12 @@ class mySqliPlus {
      */
     function fetchObject() {
         $rw = array();
-        while($row = mysqli_fetch_object ( $this->result ))
-                $rw[] = $row;
+        try{
+            while($row = mysqli_fetch_object ( $this->result ))
+                    $rw[] = $row;
+        }catch (\Exception $e){
+            die ($e->getMessage());
+        }
         return $rw;
     }  
      
@@ -175,8 +177,12 @@ class mySqliPlus {
      */
     function fetchRows() {
         $rw = array();
-        while($row = @mysqli_fetch_row ( $this->result )) 
-            $rw[] = $row;
+        try{
+            while($row = @mysqli_fetch_row ( $this->result ))
+                $rw[] = $row;
+        }catch (\Exception $e){
+            die ($e->getMessage());
+        }
         return $rw;  
     } 
      
@@ -188,8 +194,12 @@ class mySqliPlus {
      */
     function fetchArray($assoc = MYSQL_ASSOC) {
         $rw = array();
-        while($row = @mysqli_fetch_array ( $this->result,$assoc)) 
-        $rw[] = $row;  
+        try{
+        while($row = mysqli_fetch_array ( $this->result,$assoc))
+        $rw[] = $row;
+        }catch (\Exception $e){
+            die ($e->getMessage());
+        }
         return $rw;  
     } 
      
@@ -216,7 +226,7 @@ class mySqliPlus {
      * @return int 
      **/
     function numberFields() {  
-        return @mysqli_num_fields ( $this->result ); 
+        return mysqli_num_fields($this->result );
     }
 
     /**
