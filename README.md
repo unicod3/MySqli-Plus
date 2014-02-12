@@ -59,11 +59,11 @@ Insert Query
 -------
 `insert` : you can insert data with this method 
 ```php  
-    $dataArr = array(  
-        'id' => '', 
-        'first_name' => 'joe', 
-        'last_name' => 'test',  
-        );  
+    $data_arr = array(
+        'id' => '',
+        'first_name' => "joe's data",
+        'last_name' => "test",
+        );
          
     $rowID = $mysqli->insert($table, $data_arr); 
     echo $rowID; // it returns inserted id  
@@ -74,9 +74,9 @@ Update Query
 `update` : you can update data with this method 
 ```php  
     $data_arr = array(
-        'first_name' => 'joe', 
-        'last_name' => 'test',  
-        );  
+        'first_name' => "joe's Updated Data",
+        'last_name' => "testUpdated",
+        );
     $mysqli->update($table, $data_arr,'where id=3');
 ```
 

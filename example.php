@@ -26,8 +26,8 @@ require_once("class.mySqliPlus.php");
     //insert data
     $data_arr = array(
         'id' => '',
-        'first_name' => 'joe',
-        'last_name' => 'test',
+        'first_name' => "joe's data",
+        'last_name' => "test",
         );
 
     $rowID = $mysqli->insert($table, $data_arr);
@@ -36,8 +36,8 @@ require_once("class.mySqliPlus.php");
 
     //update data
     $data_arr = array(
-        'first_name' => 'joe',
-        'last_name' => 'test',
+        'first_name' => "joe's Updated Data",
+        'last_name' => "testUpdated",
         );
     $mysqli->update($table, $data_arr,'where id=1');
 

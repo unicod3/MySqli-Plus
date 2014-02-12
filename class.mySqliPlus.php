@@ -1,11 +1,16 @@
 <?php 
 
 class config { 
-     
-    public static $dbServer = "127.0.0.1"; // Set the IP or hostname of the database server you wish to connect to 
+   /*
+    public static $dbServer = "127.0.0.1"; // Set the IP or hostname of the database server you wish to connect to
     public static $dbName = "root"; // Set the name of the database you wish to connect to
     public static $dbUser = "dbUserName"; // set the database user name you wish to use to connect to the database server
     public static $dbPassword = "dbPassword"; // set the password for the username above
+    */
+    public static $dbServer = "127.0.0.1"; // Set the IP or hostname of the database server you wish to connect to 
+    public static $dbName = "unicod3_db"; // Set the name of the database you wish to connect to
+    public static $dbUser = "unicod3_us"; // set the database user name you wish to use to connect to the database server
+    public static $dbPassword = "Me6316208"; // set the password for the username above
     public static $dbPort = 3306; 
     public static $dbPrefix = "";
 } 
@@ -157,7 +162,17 @@ class mySqliPlus {
         } else { 
             return true; 
         } 
-    } 
+    }
+
+    /**
+     * method to make data safe for database
+     * @return string
+     */
+    function cleanData($value){
+        if(empty($value))
+            return false;
+        return mysqli_real_escape_string($this->linkid, $value);
+    }
      
     /** 
      * method to return the number of rows affected by the 
@@ -241,24 +256,18 @@ class mySqliPlus {
     } 
 
      
-    /** 
-     * method to clean data 
-     * @return    string 
-     **/ 
-    function cleanData($data){ 
-        if(empty($data))return false;  
-        return    mysqli_real_escape_string($this->linkid, $data); 
-    }  
+
     /* 
     * method to add something to a table 
     * @param string $tableName  
     * @param array $data_arr     = array('col'=>'val'); 
     * if it success it returns row id otherwise null  
     */      
-    function insert($table , &$data_arr){  
+    function insert($table , &$data_arr){
+           $safe_data = array_map(array($this, 'cleanData'), $data_arr);
            $sql  = "INSERT INTO ".$this->tablePrefix.$table;   
            $sql .= " (`".implode("`, `", array_keys($data_arr))."`)";  // implode keys of $array.  
-           $sql .= " VALUES ('".implode("', '", $data_arr)."') ";  // implode values of $array. 
+           $sql .= " VALUES ('".implode("', '", $safe_data)."') ";  // implode values of $array.
              
             $this->query($sql);
             return ($this->result == true) ?  mysqli_insert_id($this->linkid) : false; 
@@ -277,7 +286,7 @@ class mySqliPlus {
             $last_item = end($data_arr); 
             $last_item = each($data_arr); 
             foreach($data_arr as $k => $v){ 
-                $sql .= $k." = '".$v."'";     
+                $sql .= $k." = '".$this->cleanData($v)."'";
                 if(!($v == $last_item['value'] && $k == $last_item['key'])){ 
                     $sql .=", "; 
                 } 
