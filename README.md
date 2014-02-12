@@ -73,8 +73,7 @@ Update Query
 -------
 `update` : you can update data with this method 
 ```php  
-    $data_arr = array(  
-        'id' => '', 
+    $data_arr = array(
         'first_name' => 'joe', 
         'last_name' => 'test',  
         );  
