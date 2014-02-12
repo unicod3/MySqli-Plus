@@ -239,16 +239,7 @@ class mySqliPlus {
     function numberFields() {  
         return @mysqli_num_fields ( $this->result ); 
     } 
-     
-    /** 
-     * method to return a field name given an integer offset 
-     * @return    string 
-     **/ 
-     
-    function fieldName($offset) {  
-        return @mysqli_field_name ( $this->result, $offset );  
-    } 
-     
+
      
     /** 
      * method to clean data 
