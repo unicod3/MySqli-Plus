@@ -13,12 +13,12 @@ There is a little config class in class.mysqliplus.php file which is for your da
 Set your database configuration:
 ```php 
 class config {
-    public static $DBSERVER = "127.0.0.1"; // Set the IP or hostname of the database server you wish to connect to 
-    public static $DBNAME = "databasename"; // Set the name of the database you wish to connect to 
-    public static $DBUSER = "root"; // set the database user name you wish to use to connect to the database server 
-    public static $DBPASSWORD = ""; // set the password for the username above 
-    public static $DBPORT = 3306; 
-    public static $TABLEPREFIX = ""; 
+    public static $dbServer = "127.0.0.1"; // Set the IP or hostname of the database server you wish to connect to
+    public static $dbName = "root"; // Set the name of the database you wish to connect to
+    public static $dbUser = "dbUserName"; // set the database user name you wish to use to connect to the database server
+    public static $dbPassword = "dbPassword"; // set the password for the username above
+    public static $dbPort = 3306;
+    public static $dbPrefix = "";
 } 
 ```
 
