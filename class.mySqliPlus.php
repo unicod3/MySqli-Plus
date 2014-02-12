@@ -1,17 +1,12 @@
 <?php 
 
-class config { 
-   /*
+class config {
+
     public static $dbServer = "127.0.0.1"; // Set the IP or hostname of the database server you wish to connect to
     public static $dbName = "root"; // Set the name of the database you wish to connect to
     public static $dbUser = "dbUserName"; // set the database user name you wish to use to connect to the database server
     public static $dbPassword = "dbPassword"; // set the password for the username above
-    */
-    public static $dbServer = "127.0.0.1"; // Set the IP or hostname of the database server you wish to connect to 
-    public static $dbName = "unicod3_db"; // Set the name of the database you wish to connect to
-    public static $dbUser = "unicod3_us"; // set the database user name you wish to use to connect to the database server
-    public static $dbPassword = "Me6316208"; // set the password for the username above
-    public static $dbPort = 3306; 
+    public static $dbPort = 3306;
     public static $dbPrefix = "";
 } 
 
