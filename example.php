@@ -6,9 +6,11 @@
 *    1  | joe         | fox 
 *    2  | exm         | example 
 *    3  | admin       | admin 
-**/ 
+**/
+$myConfig = include $config;
+
 require_once("class.mySqliPlus.php");  
-    $mysqli  = new mySqliPlus();  
+    $mysqli  = new mySqliPlus($myConfig);
   
           
   
@@ -32,7 +34,7 @@ require_once("class.mySqliPlus.php");
 
     $rowID = $mysqli->insert($table, $data_arr);
     echo $rowID; // it returns inserted id
-
+/*
 
     //update data
     $data_arr = array(
@@ -45,4 +47,4 @@ require_once("class.mySqliPlus.php");
     //delete data
     echo $mysqli->delete($table,'id=2');
 
-
+*/

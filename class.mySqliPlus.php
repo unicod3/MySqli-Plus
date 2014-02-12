@@ -1,71 +1,37 @@
-<?php 
-
-class config {
-
-    public static $dbServer = "127.0.0.1"; // Set the IP or hostname of the database server you wish to connect to
-    public static $dbName = "root"; // Set the name of the database you wish to connect to
-    public static $dbUser = "dbUserName"; // set the database user name you wish to use to connect to the database server
-    public static $dbPassword = "dbPassword"; // set the password for the username above
-    public static $dbPort = 3306;
-    public static $dbPrefix = "";
-} 
-
+<?php
 /** 
  * @name mySqliPlus 
  * 
  * @category  Database Access
- * @author Sinan Ulker <sinanulker386@gmail.com> 
+ * @author Sinan Ülker <www.sinanulker.com>
  * @copyright Copyright (c) 2013
  * @license GNU/GPL  
  */  
  
-class mySqliPlus { 
-     
-    // leave blank if used for multiple users and call setUser method 
-    private $sqlUser = NULL; 
-     
-    // leave blank if used for multiple users and call setPassword method 
-    private $sqlPassword = NULL; 
-     
-    // set this to the database name you wish to use. If this class is used to access a number of Databases 
-    // leave blank and call the select method to select the desired database 
-    private $sqlDatabase = NULL; 
-     
-    // set this to the database server address. If you are using this class to connect to differant server 
-    // leave blank and call the setHost method 
-    private $sqlHost = NULL; 
+class mySqliPlus {
+    /**
+     * @var array
+     */
+    private $_config;
 
-    // set the database port
-    private $sqlPort = 3306;
+    private $result; // Query result
 
-    // Set this to the prefix of your tables if you set one while installing. 
-    // default = "" 
-    public $tablePrefix = NULL; 
-    private $result; // Query result 
-    private $querycount; // Total queries executed 
+    private $querycount; //Total queries executed
+
     private $linkid;  
-     
-    /////////////////////////////////////////END CONFIG OPTIONS///////////////////////////////////////////////////// 
-     
-    function __construct() {  
-        $this->loadDefaults ();  
-        $this->connect ();
-        $this->select ( $this->sqlDatabase );  
-    } 
-     
-    /* 
-     * method to load the object with the defaut settings 
-     */ 
-     
-    private function loadDefaults() { 
-        $this->sqlUser         = config::$dbUser; 
-        $this->sqlPassword     = config::$dbPassword; 
-        $this->sqlHost         = config::$dbServer;
-        $this->sqlDatabase     = config::$dbName;
-        $this->sqlPort         = config::$dbPort;
-        $this->tablePrefix     = config::$dbPrefix;
-    } 
-     
+
+    private $tablePrefix = "";
+
+    function __construct($config) {
+        $this->_config = $config;
+        $this->connect();
+    }
+
+    /**
+     * method to get results
+     *
+     * @return string $this->result
+     */
     public function getResult() {
         return $this->result;
     } 
@@ -73,9 +39,8 @@ class mySqliPlus {
     /** 
      * method to return the prefix for the sql tables 
      * 
-     * @return = string $this->tablePrefix 
-     */ 
-     
+     * @return string $this->tablePrefix
+     */
     public function getTablePrefix() {
         return $this->tablePrefix;
     } 
@@ -87,9 +52,10 @@ class mySqliPlus {
      * @param string $source 
      * @param string $beginning 
      * @param string $ending 
-     * @param string $init_pos 
-     */ 
-     
+     * @param string $init_pos
+     *
+     * @return string
+     */
     function getMiddle($source, $beginning, $ending, $init_pos) {
         $beginning_pos = strpos ( $source, $beginning, $init_pos );  
         $middle_pos = $beginning_pos + strlen ( $beginning );  
@@ -100,19 +66,24 @@ class mySqliPlus {
      
     /** 
      * method to connect to the MySQL database server. 
-     * 
-     * @param    string    $sqlHost 
-     * @param    string    $sqlUser 
-     * @param    string    $sqlPassword 
-     **/ 
-     
+     *
+     **/
     function connect() {
-        try { 
-            $this->linkid = mysqli_connect ( $this->sqlHost, $this->sqlUser, $this->sqlPassword, $this->sqlDatabase, $this->sqlPort );
-            if (! $this->linkid) { 
+        try {
+            $this->linkid = mysqli_connect (
+                 $this->_config['sqlHost']
+                ,$this->_config['sqlUser']
+                ,$this->_config['sqlPassword']
+                ,$this->_config['sqlDatabase']
+                ,$this->_config['sqlPort']
+            );
+            $this->tablePrefix = $this->_config['sqlPrefix'];
+            if (!$this->linkid) {
                 die ( 'Connect Error (' . mysqli_connect_errno () . ') ' . mysqli_connect_error () ); 
             } 
-            mysqli_query($this->linkid, "SET NAMES 'utf8'");  
+            mysqli_query($this->linkid, "SET NAMES 'utf8'");
+
+            $this->selectDb();
         } catch ( Exception $e ) { 
             die ( $e->getMessage () ); 
         } 
@@ -120,16 +91,15 @@ class mySqliPlus {
      
     /** 
      * method to select the database to use 
-     * @param string $sqlDatabase 
-     */ 
-     
-    function select($sqlDatabase) { 
+     *
+     */
+    function selectDb() {
         try { 
-            if (! @mysqli_select_db ($this->linkid, $sqlDatabase  )) { 
-                throw new Exception ( "The Selected Database Can Not Be Found On the Database Server. $sqlDatabase (E2)" ); 
+            if (!mysqli_select_db ($this->linkid, $this->_config['sqlDatabase']  )) {
+                throw new Exception ( "The Selected Database Can Not Be Found On the Database Server.". $this->_config['sqlDatabase'] ." (E2)" );
             } 
         } catch ( Exception $e ) { 
-            die ( $e->getMessage () ); 
+            die ( $e->getMessage());
         } 
     } 
      
@@ -144,8 +114,7 @@ class mySqliPlus {
      * 
      * @param string $query 
      * @return boolean true or false
-     */ 
-     
+     */
     function query($query) { 
         // ensure clean results 
         unset ( $this->result ); 
@@ -161,6 +130,7 @@ class mySqliPlus {
 
     /**
      * method to make data safe for database
+     * @param string
      * @return string
      */
     function cleanData($value){
@@ -173,8 +143,7 @@ class mySqliPlus {
      * method to return the number of rows affected by the 
      * last query exicuted 
      * @return int 
-     */ 
-     
+     */
     function affectedRows() {  
         $count = mysqli_affected_rows ( $this->linkid ); 
         return $count;
@@ -183,8 +152,7 @@ class mySqliPlus {
     /** 
      * method to return the number of rows in the result set 
      * returned by the last query 
-     */ 
-     
+     */
     function numRows() {  
         $count = @mysqli_num_rows ( $this->result );  
         return $count;  
@@ -193,8 +161,7 @@ class mySqliPlus {
     /** 
      * method to return the result row as an object 
      * @return    object 
-     */ 
-     
+     */
     function fetchObject() {
         $rw = array();
         while($row = mysqli_fetch_object ( $this->result ))
@@ -205,8 +172,7 @@ class mySqliPlus {
     /** 
      * method to return the result row as an indexed array 
      * @return array 
-     */ 
-     
+     */
     function fetchRows() {
         $rw = array();
         while($row = @mysqli_fetch_row ( $this->result )) 
@@ -214,11 +180,12 @@ class mySqliPlus {
         return $rw;  
     } 
      
-    /** 
-     * method to return the result row as an associative array. 
-     * @return array 
-     **/ 
-     
+    /**
+     * method to return the result row as an associative array.
+     *
+     * @var int
+     * @return array
+     */
     function fetchArray($assoc = MYSQL_ASSOC) {
         $rw = array();
         while($row = @mysqli_fetch_array ( $this->result,$assoc)) 
@@ -231,12 +198,15 @@ class mySqliPlus {
      * the lifetime of this object. 
      * 
      * @return int
-     */ 
-     
+     */
     function numQueries() {  
         return $this->querycount;  
-    } 
-     
+    }
+
+    /**
+     * set the results
+     * @param $resultSet
+     */
     function setResult($resultSet) {  
         $this->result = $resultSet;  
     } 
@@ -244,19 +214,17 @@ class mySqliPlus {
     /** 
      * method to return the number of fields in a result set 
      * @return int 
-     **/ 
-     
+     **/
     function numberFields() {  
         return @mysqli_num_fields ( $this->result ); 
-    } 
+    }
 
-     
-
-    /* 
+    /**
     * method to add something to a table 
-    * @param string $tableName  
-    * @param array $data_arr     = array('col'=>'val'); 
-    * if it success it returns row id otherwise null  
+    * @param string
+    * @param array
+    *
+    * @return boolean
     */      
     function insert($table , &$data_arr){
            $safe_data = array_map(array($this, 'cleanData'), $data_arr);
@@ -268,12 +236,13 @@ class mySqliPlus {
             return ($this->result == true) ?  mysqli_insert_id($this->linkid) : false; 
         } 
      
-    /* 
+    /**
     * method to update colons in a table  
-    * @param string $tableName  
-    * @param array $data_arr     = array('col'=>'val'); 
-    * @param string $where_str  
-    * if it success it returns true otherwise false 
+    * @param string
+    * @param array
+    * @param string
+    *
+    * @return boolean
     */      
     function update($table, &$data_arr , $where_str){ 
             $sql    = "UPDATE ".$this->tablePrefix.$table." SET "; 
@@ -291,45 +260,41 @@ class mySqliPlus {
             return $this->result; 
         }  
      
-    /* 
+    /**
     * method to delete records 
-    * @param string $tableName   
-    * @param string $where_str  
-    * if it success it returns true otherwise false 
-    */      
-     
+    * @param string
+    * @param string
+    *
+    * @return boolean
+    */
     function delete($table, $where_str){ 
             if(empty($where_str))return false; 
             $sql        = "DELETE FROM ".$this->tablePrefix.$table." WHERE ".$where_str;      
             $this->query($sql);  
             return $this->result; 
-        } 
+        }
          
-         
-         
-    /* 
+    /**
     * method to get row count 
-    * @param string $tableName     
-    * @param string $where_str  
-    * if it success it returns true otherwise false 
+    * @param string
+    * @param string
+    * @return int
     */          
     function rowCount($table,$where_str = ''){  
             $this->query("SELECT * FROM ".$this->tablePrefix.$table." ".$where_str);
             return $this->numRows(); 
         } 
 
-    /* 
+    /**
     * method to get rows from database 
-    * @param string $tableName   
-    * @param string/array $col_arr = array('col1','col2'); or *   
-    * @param string $where_str  
-    * if it success it returns true otherwise false 
+    * @param string
+    * @param string/array
+    * @param string
+    * @return int/boolean
     */     
     function getRows($table,$col_arr = '*', $where_str = ''){ 
             $cols     = !is_array($col_arr) ? $col_arr : implode(',',$col_arr);  
             $this->query("SELECT ".$cols." FROM ".$this->tablePrefix.$table." ".$where_str);
             return  ($this->numRows() > 0) ? $this->fetchArray() : false; 
-        } 
-         
-} 
-?> 
+        }
+}
