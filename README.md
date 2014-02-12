@@ -1,8 +1,9 @@
 MySqli-Plus
 ===========
 This class makes it easy to write mysql queries which are based on mysqli
-To use this class, first include class.mysqliplus.php into your project page
-```php 
+To use this class, first include config.php and class.mysqliplus.php into your project page
+```php
+$myConfig = include "config.php";
 require_once('class.mysqliplus.php');
 ```
 
@@ -22,7 +23,6 @@ return array(
 
 Then create a new instance,
 ```php
-$myConfig = include $config;
 $mysqli  = new mySqliPlus($myConfig);
 ```
 Example Table

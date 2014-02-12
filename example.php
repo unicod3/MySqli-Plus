@@ -7,19 +7,19 @@
 *    2  | exm         | example 
 *    3  | admin       | admin 
 **/
-$myConfig = include $config;
+$myConfig = include "config.php";
+require_once("class.mySqliPlus.php");
 
-require_once("class.mySqliPlus.php");  
+
     $mysqli  = new mySqliPlus($myConfig);
-  
-          
-  
-     $table = 'users'; 
+    $table = 'users';
      
     //row count
-    echo  $mysqli->rowCount($table,"where first_name ='joe'");  
-     
-     
+    echo '<pre>';
+    echo  $mysqli->rowCount($table,"where first_name ='joe'");
+    echo '</pre>';
+
+
     //get rows
     echo '<pre>'; 
     print_r($mysqli->getRows($table,'*',"where first_name ='joe'"));  
@@ -34,7 +34,6 @@ require_once("class.mySqliPlus.php");
 
     $rowID = $mysqli->insert($table, $data_arr);
     echo $rowID; // it returns inserted id
-/*
 
     //update data
     $data_arr = array(
@@ -43,8 +42,5 @@ require_once("class.mySqliPlus.php");
         );
     $mysqli->update($table, $data_arr,'where id=1');
 
-
     //delete data
     echo $mysqli->delete($table,'id=2');
-
-*/
